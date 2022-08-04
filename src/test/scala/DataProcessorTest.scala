@@ -8,7 +8,7 @@ class DataProcessorTest extends AnyFunSuite {
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map()
 
-    assert(expectedOutput.equals(processedData))
+    assertResult(expectedOutput)(processedData)
   }
 
   test("processData should add new element if key in map not exists") {
@@ -17,7 +17,7 @@ class DataProcessorTest extends AnyFunSuite {
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map("a" -> ((5, 5, 0, 5, 1)))
 
-    assert(expectedOutput.equals(processedData))
+    assertResult(expectedOutput)(processedData)
   }
 
   test("processData should update element if key in map exists") {
@@ -26,7 +26,7 @@ class DataProcessorTest extends AnyFunSuite {
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map("a" -> ((10, 15, 0, 25, 2)))
 
-    assert(expectedOutput.equals(processedData))
+    assertResult(expectedOutput)(processedData)
   }
 
   test("processData should increment third number in tuple if NaN as second value is provided") {
@@ -35,7 +35,7 @@ class DataProcessorTest extends AnyFunSuite {
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map("a" -> ((20, 20, 1, 20, 2)))
 
-    assert(expectedOutput.equals(processedData))
+    assertResult(expectedOutput)(processedData)
   }
 
   test("testCalculateAvg should return NaN on count = 0") {
@@ -45,9 +45,9 @@ class DataProcessorTest extends AnyFunSuite {
   }
 
   test("testCalculateAvg should calculate average correctly") {
-    assert((6L.toDouble/2).equals(DataProcessor.calculateAvg(6L, 2)))
-    assert((200L.toDouble/75).equals(DataProcessor.calculateAvg(200L, 75)))
-    assert((3L.toDouble/2).equals(DataProcessor.calculateAvg(3L, 2)))
+    assertResult(6L.toDouble/2)(DataProcessor.calculateAvg(6L, 2))
+    assertResult(200L.toDouble/75)(DataProcessor.calculateAvg(200L, 75))
+    assertResult(3L.toDouble/2)(DataProcessor.calculateAvg(3L, 2))
   }
 
   test("testCalculateAvg should return NaN in case of division by 0") {
@@ -62,8 +62,8 @@ class DataProcessorTest extends AnyFunSuite {
 
     val mapWithAvg = DataProcessor.addAvgToTuple(map)
 
-    assert(aAvg.equals(mapWithAvg("a")._6))
-    assert(bAvg.equals(mapWithAvg("b")._6))
+    assertResult(aAvg)(mapWithAvg("a")._6)
+    assertResult(bAvg)(mapWithAvg("b")._6)
   }
 
 }

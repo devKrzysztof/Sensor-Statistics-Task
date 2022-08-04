@@ -4,11 +4,21 @@ import scala.io.{BufferedSource, Source}
 object FileProcessor {
 
   def main(args: Array[String]): Unit = {
-    val path = args(0)
-    val csvFiles = getCSVsInPath(path)
-    val calculatedStatistics = calculateStatistics(csvFiles)
+    if (args.nonEmpty) {
+      val path = args(0)
+      processFiles(path)
+    } else {
+      println("No path to CSV files provided")
+    }
+  }
 
-    StatsPrinter.printStatistics(csvFiles.length, calculatedStatistics)
+  private def processFiles(path: String): Unit = {
+    getFilesArray(path) match {
+      case Some(filePaths) =>
+        val csvFiles = getCSVsInPath(filePaths)
+        StatsPrinter.printStatistics(csvFiles.length, calculateStatistics(csvFiles))
+      case None => println("There was a problem with accessing given path: " + path)
+    }
   }
 
   def calculateStatistics: Array[String] => Seq[(String, (Int, Int, Int, Long, Int, Double))] =
@@ -20,15 +30,15 @@ object FileProcessor {
       .toSeq
       .sortBy { case (_, (_, _, _, _, _, avg)) => -avg }
 
-
-  def getCSVsInPath(path: String): Array[String] = {
+  def getFilesArray(path: String): Option[Array[File]] =
     Option(new File(path).listFiles)
-      .getOrElse(Array())
+
+  def getCSVsInPath: Array[File] => Array[String] =
+    _
       .filter(_.isFile)
       .filter(_.canRead)
       .filter(_.getName.endsWith(".csv"))
       .map(_.getAbsolutePath)
-  }
 
   def fileProcessor(file: String): Map[String, (Int, Int, Int, Long, Int)] = {
     try {
