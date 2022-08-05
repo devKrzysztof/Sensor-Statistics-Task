@@ -19,26 +19,26 @@ class FileProcessorTest extends AnyFunSuite {
     val processedFile = FileProcessor.fileProcessor(absolutePath + "leader-1.csv")
     println(FileProcessor.fileProcessor(absolutePath + "leader-1.csv"))
     println(FileProcessor.fileProcessor(absolutePath + "leader-2.csv"))
-    val expectedResult = Map("s1" -> (10, 10, 1, 10L, 1), "s2" -> (88, 88, 0, 88L, 1))
+    val expectedResult = Map("s1" -> SensorStat(10, 10, 1, 10L, 1, 0), "s2" -> SensorStat(88, 88, 0, 88L, 1, 0))
 
     assertResult(expectedResult)(processedFile)
   }
 
   test("toTuple should convert option of string value to two-values tuple") {
     assert(FileProcessor.toTuple("test").isEmpty)
-    assertResult(Some("a","1"))(FileProcessor.toTuple("a,1"))
+    assertResult(Some("a", "1"))(FileProcessor.toTuple("a,1"))
   }
 
   test("combineMaps should merge maps properly") {
-    val first = Map("s1" -> (10, 10, 1, 10L, 1), "s2" -> (88, 88, 0, 88L, 1))
-    val second = Map("s2" -> (78, 80, 1, 158L, 2), "s3" -> (1, 1, 1, 1L, 1), "s1" -> (98, 98, 0, 98L, 1))
-    val expectedResult = Map("s1" -> (10, 98, 1, 108L, 2), "s2" -> (78, 88, 1, 246L, 3), "s3" -> (1, 1, 1, 1L, 1))
+    val first = Map("s1" -> SensorStat(10, 10, 1, 10L, 1, 0), "s2" -> SensorStat(88, 88, 0, 88L, 1, 0))
+    val second = Map("s2" -> SensorStat(78, 80, 1, 158L, 2, 0), "s3" -> SensorStat(1, 1, 1, 1L, 1, 0), "s1" -> SensorStat(98, 98, 0, 98L, 1, 0))
+    val expectedResult = Map("s1" -> SensorStat(10, 98, 1, 108L, 2, 0), "s2" -> SensorStat(78, 88, 1, 246L, 3, 0), "s3" -> SensorStat(1, 1, 1, 1L, 1, 0))
 
     assertResult(expectedResult)(FileProcessor.combineMaps(first, second))
   }
 
   test("calculateStatistics should sort elements in descending order by average temperature") {
-    val expectedResult = Seq(("s2", (88, 88, 0, 88, 1, 88.0)), ("s1", (10, 10, 1, 10, 1, 10.0)))
+    val expectedResult = Seq(("s2", SensorStat(88, 88, 0, 88, 1, 88.0)), ("s1", SensorStat(10, 10, 1, 10, 1, 10.0)))
     val actualResult = FileProcessor.calculateStatistics(Array(absolutePath + "leader-1.csv"))
     assertResult(expectedResult)(actualResult)
   }

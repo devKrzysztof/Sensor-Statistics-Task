@@ -3,7 +3,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class DataProcessorTest extends AnyFunSuite {
 
   test("processData should return unchanged map if incorrect int is provided") {
-    val map: Map[String, (Int, Int, Int, Long, Int)] = Map()
+    val map: Map[String, SensorStat] = Map()
     val newItem: (String, String) = ("a", "bug")
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map()
@@ -12,28 +12,28 @@ class DataProcessorTest extends AnyFunSuite {
   }
 
   test("processData should add new element if key in map not exists") {
-    val map: Map[String, (Int, Int, Int, Long, Int)] = Map()
+    val map: Map[String, SensorStat] = Map()
     val newItem: (String, String) = ("a", "5")
     val processedData = DataProcessor.processData(map, newItem)
-    val expectedOutput = Map("a" -> ((5, 5, 0, 5, 1)))
+    val expectedOutput = Map("a" -> SensorStat(5, 5, 0, 5, 1, 0))
 
     assertResult(expectedOutput)(processedData)
   }
 
   test("processData should update element if key in map exists") {
-    val map: Map[String, (Int, Int, Int, Long, Int)] = Map("a" -> ((10, 10, 0, 10, 1)))
+    val map: Map[String, SensorStat] = Map("a" -> SensorStat(10, 10, 0, 10, 1, 0))
     val newItem: (String, String) = ("a", "15")
     val processedData = DataProcessor.processData(map, newItem)
-    val expectedOutput = Map("a" -> ((10, 15, 0, 25, 2)))
+    val expectedOutput = Map("a" -> SensorStat(10, 15, 0, 25, 2, 0))
 
     assertResult(expectedOutput)(processedData)
   }
 
   test("processData should increment third number in tuple if NaN as second value is provided") {
-    val map: Map[String, (Int, Int, Int, Long, Int)] = Map("a" -> ((20, 20, 0, 20, 2)))
+    val map: Map[String, SensorStat] = Map("a" -> SensorStat(20, 20, 0, 20, 2, 0))
     val newItem: (String, String) = ("a", "NaN")
     val processedData = DataProcessor.processData(map, newItem)
-    val expectedOutput = Map("a" -> ((20, 20, 1, 20, 2)))
+    val expectedOutput = Map("a" -> SensorStat(20, 20, 1, 20, 2, 0))
 
     assertResult(expectedOutput)(processedData)
   }
@@ -45,9 +45,9 @@ class DataProcessorTest extends AnyFunSuite {
   }
 
   test("testCalculateAvg should calculate average correctly") {
-    assertResult(6L.toDouble/2)(DataProcessor.calculateAvg(6L, 2))
-    assertResult(200L.toDouble/75)(DataProcessor.calculateAvg(200L, 75))
-    assertResult(3L.toDouble/2)(DataProcessor.calculateAvg(3L, 2))
+    assertResult(6L.toDouble / 2)(DataProcessor.calculateAvg(6L, 2))
+    assertResult(200L.toDouble / 75)(DataProcessor.calculateAvg(200L, 75))
+    assertResult(3L.toDouble / 2)(DataProcessor.calculateAvg(3L, 2))
   }
 
   test("testCalculateAvg should return NaN in case of division by 0") {
@@ -55,15 +55,15 @@ class DataProcessorTest extends AnyFunSuite {
   }
 
   test("addAvgToTuple should add average to all tuples in map") {
-    val map = Map("a" -> (1, 25, 5, 100L, 25), "b" -> (15, 35, 10, 200L, 75))
+    val map = Map("a" -> SensorStat(1, 25, 5, 100L, 25, 0), "b" -> SensorStat(15, 35, 10, 200L, 75, 0))
 
-    val aAvg = map("a")._4.toDouble / map("a")._5
-    val bAvg = map("b")._4.toDouble / map("b")._5
+    val aAvg = map("a").sum.toDouble / map("a").count
+    val bAvg = map("b").sum.toDouble / map("b").count
 
     val mapWithAvg = DataProcessor.addAvgToTuple(map)
 
-    assertResult(aAvg)(mapWithAvg("a")._6)
-    assertResult(bAvg)(mapWithAvg("b")._6)
+    assertResult(aAvg)(mapWithAvg("a").avg)
+    assertResult(bAvg)(mapWithAvg("b").avg)
   }
 
 }

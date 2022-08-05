@@ -1,18 +1,18 @@
 object DataProcessor {
 
-  def processData(map: Map[String, (Int, Int, Int, Long, Int)], item: (String, String)): Map[String, (Int, Int, Int, Long, Int)] = {
-    val (min, max, nan, sum, count) = map.getOrElse(item._1, (Int.MaxValue, Int.MinValue, 0, 0L, 0))
+  def processData(map: Map[String, SensorStat], item: (String, String)): Map[String, SensorStat] = {
+    val stats = map.getOrElse(item._1, SensorStat(Int.MaxValue, Int.MinValue, 0, 0L, 0, 0))
     item._2 match {
-      case "NaN" => map + (item._1 -> (min, max, nan + 1, sum, count))
+      case "NaN" => map + (item._1 -> SensorStat(stats.min, stats.max, stats.nan + 1, stats.sum, stats.count, stats.avg))
       case _ if item._2.matches("\\d+") =>
         val temperature = item._2.toInt
-        map + (item._1 -> (min.min(temperature), max.max(temperature), nan, sum + temperature, count + 1))
+        map + (item._1 -> SensorStat(stats.min.min(temperature), stats.max.max(temperature), stats.nan, stats.sum + temperature, stats.count + 1, stats.avg))
       case _ => map
     }
   }
 
-  def addAvgToTuple(sensorStats: Map[String, (Int, Int, Int, Long, Int)]): Map[String, (Int, Int, Int, Long, Int, Double)] =
-    sensorStats.map { case (k, v) => k -> (v._1, v._2, v._3, v._4, v._5, calculateAvg(v._4, v._5)) }
+  def addAvgToTuple(sensorStats: Map[String, SensorStat]): Map[String, SensorStat] =
+    sensorStats.map { case (k, v) => k -> SensorStat(v.min, v.max, v.nan, v.sum, v.count, calculateAvg(v.sum, v.count)) }
 
   def calculateAvg(sum: Long, count: Int): Double =
     count match {

@@ -21,14 +21,14 @@ object FileProcessor {
     }
   }
 
-  def calculateStatistics: Array[String] => Seq[(String, (Int, Int, Int, Long, Int, Double))] =
+  def calculateStatistics: Array[String] => Seq[(String, SensorStat)] =
     _
       .map(fileProcessor)
       .reduceOption(combineMaps)
       .map(DataProcessor.addAvgToTuple)
       .getOrElse(Map())
       .toSeq
-      .sortBy { case (_, (_, _, _, _, _, avg)) => -avg }
+      .sortBy { case (_, SensorStat(_, _, _, _, _, avg)) => -avg }
 
   def getFilesArray(path: String): Option[Array[File]] =
     Option(new File(path).listFiles)
@@ -40,7 +40,7 @@ object FileProcessor {
       .filter(_.getName.endsWith(".csv"))
       .map(_.getAbsolutePath)
 
-  def fileProcessor(file: String): Map[String, (Int, Int, Int, Long, Int)] = {
+  def fileProcessor(file: String): Map[String, SensorStat] = {
     try {
       val source = Source.fromFile(file)
       try {
@@ -53,28 +53,27 @@ object FileProcessor {
     }
   }
 
-  def processFile: BufferedSource => Map[String, (Int, Int, Int, Long, Int)] =
+  def processFile: BufferedSource => Map[String, SensorStat] =
     _
       .getLines
       .drop(1)
       .map(toTuple)
       .filter(_.isDefined)
       .map(_.get)
-      .foldLeft(Map[String, (Int, Int, Int, Long, Int)]())((map, item) => DataProcessor.processData(map, item))
+      .foldLeft(Map[String, SensorStat]())((map, item) => DataProcessor.processData(map, item))
 
   def toTuple: String => Option[(String, String)] = _.split(',') match {
     case Array(sensor, temperature) => Some(sensor, temperature)
     case _ => None
   }
 
-  def combineMaps(x: Map[String, (Int, Int, Int, Long, Int)],
-                  y: Map[String, (Int, Int, Int, Long, Int)]): Map[String, (Int, Int, Int, Long, Int)] =
+  def combineMaps(x: Map[String, SensorStat],
+                  y: Map[String, SensorStat]): Map[String, SensorStat] =
     x ++ y.map { case (k, v) => k -> combineValues(v, x.get(k)) }
 
-  private def combineValues(x: (Int, Int, Int, Long, Int),
-                            y: Option[(Int, Int, Int, Long, Int)]): (Int, Int, Int, Long, Int) =
+  private def combineValues(x: SensorStat, y: Option[SensorStat]): SensorStat =
     y match {
-      case Some(value) => (x._1.min(value._1), x._2.max(value._2), x._3 + value._3, x._4 + value._4, x._5 + value._5)
+      case Some(value) => SensorStat(x.min.min(value.min), x.max.max(value.max), x.nan + value.nan, x.sum + value.sum, x.count + value.count, x.avg)
       case None => x
     }
 
