@@ -11,7 +11,7 @@ object DataProcessor {
     }
   }
 
-  def addAvgToTuple(sensorStats: Map[String, SensorStat]): Map[String, SensorStat] =
+  def calculateAvgInSensorStat(sensorStats: Map[String, SensorStat]): Map[String, SensorStat] =
     sensorStats.map { case (k, v) => k -> SensorStat(v.min, v.max, v.nan, v.sum, v.count, calculateAvg(v.sum, v.count)) }
 
   def calculateAvg(sum: Long, count: Int): Double =

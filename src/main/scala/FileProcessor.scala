@@ -25,7 +25,7 @@ object FileProcessor {
     _
       .map(fileProcessor)
       .reduceOption(combineMaps)
-      .map(DataProcessor.addAvgToTuple)
+      .map(DataProcessor.calculateAvgInSensorStat)
       .getOrElse(Map())
       .toSeq
       .sortBy { case (_, SensorStat(_, _, _, _, _, avg)) => -avg }

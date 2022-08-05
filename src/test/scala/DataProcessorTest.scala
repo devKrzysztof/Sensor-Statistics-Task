@@ -54,13 +54,13 @@ class DataProcessorTest extends AnyFunSuite {
     assert(Double.NaN.equals(DataProcessor.calculateAvg(2, 0)))
   }
 
-  test("addAvgToTuple should add average to all tuples in map") {
+  test("calculateAvgInSensorStat should add average to all case classes in map") {
     val map = Map("a" -> SensorStat(1, 25, 5, 100L, 25, 0), "b" -> SensorStat(15, 35, 10, 200L, 75, 0))
 
     val aAvg = map("a").sum.toDouble / map("a").count
     val bAvg = map("b").sum.toDouble / map("b").count
 
-    val mapWithAvg = DataProcessor.addAvgToTuple(map)
+    val mapWithAvg = DataProcessor.calculateAvgInSensorStat(map)
 
     assertResult(aAvg)(mapWithAvg("a").avg)
     assertResult(bAvg)(mapWithAvg("b").avg)
