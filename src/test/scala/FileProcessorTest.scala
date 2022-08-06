@@ -17,16 +17,14 @@ class FileProcessorTest extends AnyFunSuite {
 
   test("fileProcessor should process files correctly") {
     val processedFile = FileProcessor.fileProcessor(absolutePath + "leader-1.csv")
-    println(FileProcessor.fileProcessor(absolutePath + "leader-1.csv"))
-    println(FileProcessor.fileProcessor(absolutePath + "leader-2.csv"))
     val expectedResult = Map("s1" -> SensorStat(10, 10, 1, 10L, 1, 0), "s2" -> SensorStat(88, 88, 0, 88L, 1, 0))
 
     assertResult(expectedResult)(processedFile)
   }
 
-  test("toTuple should convert option of string value to two-values tuple") {
-    assert(FileProcessor.toTuple("test").isEmpty)
-    assertResult(Some("a", "1"))(FileProcessor.toTuple("a,1"))
+  test("toSensorDataRow should convert string value to option of SensorDataRow") {
+    assert(FileProcessor.toSensorDataRow("test").isEmpty)
+    assertResult(Some(SensorDataRow("a", "1")))(FileProcessor.toSensorDataRow("a,1"))
   }
 
   test("combineMaps should merge maps properly") {

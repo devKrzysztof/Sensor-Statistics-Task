@@ -4,7 +4,7 @@ class DataProcessorTest extends AnyFunSuite {
 
   test("processData should return unchanged map if incorrect int is provided") {
     val map: Map[String, SensorStat] = Map()
-    val newItem: (String, String) = ("a", "bug")
+    val newItem: SensorDataRow = SensorDataRow("a", "bug")
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map()
 
@@ -13,7 +13,7 @@ class DataProcessorTest extends AnyFunSuite {
 
   test("processData should add new element if key in map not exists") {
     val map: Map[String, SensorStat] = Map()
-    val newItem: (String, String) = ("a", "5")
+    val newItem: SensorDataRow = SensorDataRow("a", "5")
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map("a" -> SensorStat(5, 5, 0, 5, 1, 0))
 
@@ -22,7 +22,7 @@ class DataProcessorTest extends AnyFunSuite {
 
   test("processData should update element if key in map exists") {
     val map: Map[String, SensorStat] = Map("a" -> SensorStat(10, 10, 0, 10, 1, 0))
-    val newItem: (String, String) = ("a", "15")
+    val newItem: SensorDataRow = SensorDataRow("a", "15")
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map("a" -> SensorStat(10, 15, 0, 25, 2, 0))
 
@@ -31,7 +31,7 @@ class DataProcessorTest extends AnyFunSuite {
 
   test("processData should increment third number in tuple if NaN as second value is provided") {
     val map: Map[String, SensorStat] = Map("a" -> SensorStat(20, 20, 0, 20, 2, 0))
-    val newItem: (String, String) = ("a", "NaN")
+    val newItem: SensorDataRow = SensorDataRow("a", "NaN")
     val processedData = DataProcessor.processData(map, newItem)
     val expectedOutput = Map("a" -> SensorStat(20, 20, 1, 20, 2, 0))
 

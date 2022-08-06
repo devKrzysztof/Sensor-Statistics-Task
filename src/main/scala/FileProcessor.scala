@@ -57,13 +57,13 @@ object FileProcessor {
     _
       .getLines
       .drop(1)
-      .map(toTuple)
+      .map(toSensorDataRow)
       .filter(_.isDefined)
       .map(_.get)
       .foldLeft(Map[String, SensorStat]())((map, item) => DataProcessor.processData(map, item))
 
-  def toTuple: String => Option[(String, String)] = _.split(',') match {
-    case Array(sensor, temperature) => Some(sensor, temperature)
+  def toSensorDataRow: String => Option[SensorDataRow] = _.split(',') match {
+    case Array(sensor, temperature) => Some(SensorDataRow(sensor, temperature))
     case _ => None
   }
 
